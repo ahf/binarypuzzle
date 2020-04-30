@@ -7,7 +7,6 @@ from __future__ import annotations
 from .constants import N
 from .exceptions import InvalidPuzzleError, UnsolvablePuzzleError
 
-from functools import reduce
 from typing import List, Optional, Tuple
 from z3 import sat, And, Int, Not, Or, Solver, Sum
 
@@ -32,8 +31,9 @@ class BinaryPuzzle:
             raise InvalidPuzzleError
 
         # Ensure that our given puzzle is N x N.
-        if reduce(lambda acc, row: acc + len(row), puzzle, 0) != size ** 2:
-            raise InvalidPuzzleError
+        for row in puzzle:
+            if size != len(row):
+                raise InvalidPuzzleError
 
         # Ensure that our N is even.
         if size % 2 != 0:
@@ -154,7 +154,7 @@ class BinaryPuzzle:
         # a 1 value. No other values are interesting if we are searching for
         # the result.
         for symbol in symbols.values():
-            solver.add(Or([symbol == value for value in [0, 1]]))
+            solver.add(Or([symbol == 0, symbol == 1]))
 
         # The second constraint we add, is to ensure that each row have the
         # exact same amount of zeroes and ones. We can exploit the nature of
